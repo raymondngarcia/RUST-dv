@@ -10,5 +10,7 @@ path = "agent/rust_axi_mst/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
+libc = "0.2"
+
 
 [build-dependencies]
