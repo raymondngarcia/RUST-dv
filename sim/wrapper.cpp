@@ -16,14 +16,14 @@ extern "C" void sim_init(bool enable_wave, const char* dumpfile) {
     }
 }
 
-extern "C" void sim_tick(uint64_t time) {
+extern "C" void sim_tick(uint64_t time, uint64_t step) {
     dut->clk = 0;
     dut->eval();
     if (tfp) tfp->dump(time);
 
     dut->clk = 1;
     dut->eval();
-    if (tfp) tfp->dump(time + 5);
+    if (tfp) tfp->dump(time + (step/2));
 }
 
 extern "C" void sim_finish() {
