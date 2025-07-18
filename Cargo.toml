@@ -1,0 +1,18 @@
+[package]
+name = "rust_axi_tb"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+name = "rust_axi_mst"
+path = "agent/rust_axi_mst/lib.rs"
+crate-type = ["rlib"]
+
+[[test]]
+name = "test_axi_basic"
+path = "test/test_axi_basic.rs"
+
+[dependencies]
+
+[build-dependencies]
