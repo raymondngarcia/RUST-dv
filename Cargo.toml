@@ -9,10 +9,6 @@ name = "rust_axi_mst"
 path = "agent/rust_axi_mst/lib.rs"
 crate-type = ["rlib"]
 
-[[test]]
-name = "test_axi_basic"
-path = "test/test_axi_basic.rs"
-
 [dependencies]
 
 [build-dependencies]
