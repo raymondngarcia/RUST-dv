@@ -2,14 +2,14 @@
 name = "rust_axi_tb"
 version = "0.1.0"
 edition = "2021"
-build = "build.rs"
 
-[lib]
-name = "rust_axi_mst"
-path = "agent/rust_axi_mst/lib.rs"
-crate-type = ["rlib"]
+#[lib]
+#name = "rust_axi_mst"
+#path = "agent/rust_axi_mst/lib.rs"
+#crate-type = ["rlib"]
 
 [dependencies]
+chrono = "0.4.44"
 libc = "0.2"
 
 

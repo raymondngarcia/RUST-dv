@@ -16,3 +16,10 @@ error.log
 
 sim/test_axi_basic*/
 sim/last_run.log
+
+
+# Added by cargo
+#
+# already existing elements were commented out
+
+#/target
