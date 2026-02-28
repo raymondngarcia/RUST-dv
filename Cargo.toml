@@ -8,6 +8,10 @@ edition = "2021"
 #path = "agent/rust_axi_mst/lib.rs"
 #crate-type = ["rlib"]
 
+[[bin]]
+name = "clean"
+path = "src/bin/clean.rs"
+
 [dependencies]
 chrono = "0.4.44"
 libc = "0.2"
