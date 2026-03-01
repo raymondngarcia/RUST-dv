@@ -5,6 +5,7 @@ use std::{
     fs::{create_dir_all, File},
     io::{self, Write},
 };
+//use BITS::*;
 
 extern "C" {
     fn sim_init(enable_wave: bool, vcd_path: *const std::os::raw::c_char);
