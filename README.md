@@ -74,12 +74,16 @@ cargo test -p tb --test test_axi_basic
 - Test outputs are written per test under:
 
 target/tb/sim_outputs/<test_name>_<timestamp>/
+
 ├── sim.log
+
 └── wave_<test_name>.vcd  # only if WAVE=1
 
 - Example
 target/tb/sim_outputs/test_axi_basic_2026-03-02_21-50-12-123/
+
 ├── sim.log
+
 └── wave_test_axi_basic.vcd
 
 ## Scheduler API
