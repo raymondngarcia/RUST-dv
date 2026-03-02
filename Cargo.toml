@@ -1,16 +1,9 @@
-[package]
-name = "rust_axi_tb"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+    "scheduler",
+    "data_types",
+    "tb", 
+    "sim",
+]
 
-[[bin]]
-name = "clean"
-path = "src/bin/clean.rs"
-
-[dependencies]
-chrono = "0.4.44"
-libc = "0.2"
-data_types = { path = "./data_types" }
-
-
-[build-dependencies]
+resolver = "2"
