@@ -3,10 +3,6 @@ name = "tb"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "clean"
-path = "src/bin/clean.rs"
-
 [dependencies]
 chrono = "0.4.44"
 libc = "0.2"

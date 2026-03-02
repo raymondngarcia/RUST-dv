@@ -25,31 +25,68 @@ pub struct VerilatorSim {
 impl VerilatorSim {
     /// Automatically reads WAVE env var and creates unique folder per test
     pub fn new(test_name: &str) -> Self {
-        // Timestamp with milliseconds
-        let timestamp = Local::now().format("%Y%m%d_%H%M%S_%3f").to_string();
+        // ------------------------------------------------------------
+        // 1️⃣ Timestamp with millisecond precision
+        // ------------------------------------------------------------
+        let timestamp = Local::now().format("%Y-%m-%d_%H-%M-%S-%3f");
 
-        // Folder: target/sim_outputs/<test_name>_<timestamp>/
-        let folder_name = format!("target/sim_outputs/{}_{}", test_name, timestamp);
-        fs::create_dir_all(&folder_name).unwrap();
+        // ------------------------------------------------------------
+        // 2️⃣ Locate workspace root safely
+        // ------------------------------------------------------------
+        let workspace_root = env::var("CARGO_WORKSPACE_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| {
+                // Fallback for older Cargo versions
+                let manifest_dir =
+                    PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+                manifest_dir
+                    .parent()
+                    .expect("Failed to determine workspace root")
+                    .to_path_buf()
+            });
 
-        // Paths for log and VCD inside that folder
-        let log_path = PathBuf::from(&folder_name).join("sim.log");
-        let vcd_path = PathBuf::from(&folder_name).join(format!("wave_{}.vcd", test_name));
+        let target_dir = workspace_root.join("target");
 
-        // Enable waveform if WAVE env var is set
+        // ------------------------------------------------------------
+        // 3️⃣ Create folder:
+        // workspace_root/target/sim_outputs/<test>_<timestamp>/
+        // ------------------------------------------------------------
+        let folder = target_dir
+            .join("sim_outputs")
+            .join(format!("{}_{}", test_name, timestamp));
+
+        fs::create_dir_all(&folder).unwrap();
+
+        // ------------------------------------------------------------
+        // 4️⃣ Paths for log and VCD
+        // ------------------------------------------------------------
+        let log_path = folder.join("sim.log");
+        let vcd_path = folder.join(format!("wave_{}.vcd", test_name));
+
+        // ------------------------------------------------------------
+        // 5️⃣ Enable waveform via WAVE env var
+        // ------------------------------------------------------------
         let enable_wave = env::var("WAVE")
-            .map(|v| v == "1" || v.to_lowercase() == "true")
+            .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
             .unwrap_or(false);
 
-        let dumpfile = CString::new(vcd_path.to_string_lossy().to_string()).unwrap();
+        let dumpfile = CString::new(
+            vcd_path.to_string_lossy().to_string()
+        ).unwrap();
 
-        // Initialize Verilator simulation
+        // ------------------------------------------------------------
+        // 6️⃣ Initialize Verilator
+        // ------------------------------------------------------------
         let handle = unsafe { sim_init(enable_wave, dumpfile.as_ptr()) };
 
-        Self { handle, time: 0, log_path }
+        Self {
+            handle,
+            time: 0,
+            log_path,
+        }
     }
 
-    /// Convenience: write simulation messages
+    /// Write simulation messages
     pub fn log(&self, msg: &str) {
         use std::io::Write;
         let mut f = std::fs::OpenOptions::new()
