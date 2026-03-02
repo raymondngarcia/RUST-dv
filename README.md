@@ -27,10 +27,10 @@ This project demonstrates a scalable RTL simulation environment using:
 ├── scheduler/ # Scheduler crate: phases, context, components
 ├── sim/ # Simulation crate wrapping Verilator
 │ └── cpp/
-│      └── wrapper.cpp
+│ └── wrapper.cpp
 ├── tb/ # Testbench crate: Rust test logic
-│   └── tests/
-│        └── test_axi_basic.rs
+│ └── tests/
+│ └── test_axi_basic.rs
 ├── target/ # Cargo output, including sim outputs
 ├── build.rs # Build script for Verilator integration
 ├── Cargo.toml # Workspace manifest
