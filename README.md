@@ -22,20 +22,33 @@ This project demonstrates a scalable RTL simulation environment using:
 ---
 
 ## 📂 Directory Structure
-├── data_types/ # Custom Bits<N> types for flexible-width signals
-├── rtl/simple_axi_slv/ # Verilog DUT (AXI slave)
-├── scheduler/ # Scheduler crate: phases, context, components
-├── sim/ # Simulation crate wrapping Verilator
-│ └── cpp/
-│ └── wrapper.cpp
-├── tb/ # Testbench crate: Rust test logic
-│ └── tests/
-│ └── test_axi_basic.rs
-├── target/ # Cargo output, including sim outputs
-├── build.rs # Build script for Verilator integration
-├── Cargo.toml # Workspace manifest
-└── README.md
+.
 
+├── data_types/ # Custom Bits<N> types for flexible-width signals
+
+├── rtl/simple_axi_slv/ # Verilog DUT (AXI slave)
+
+├── scheduler/ # Scheduler crate: phases, context, components
+
+├── sim/ # Simulation crate wrapping Verilator
+
+│ └── cpp/
+
+│ └── wrapper.cpp
+
+├── tb/ # Testbench crate: Rust test logic
+
+│ └── tests/
+
+│ └── test_axi_basic.rs
+
+├── target/ # Cargo output, including sim outputs
+
+├── build.rs # Build script for Verilator integration
+
+├── Cargo.toml # Workspace manifest
+
+└── README.md
 
 ---
 
