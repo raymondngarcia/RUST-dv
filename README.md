@@ -1,126 +1,124 @@
-# Rust + Verilator Testbench
+# Rust + Verilator Design Verification Framework
 
-This project demonstrates a fully working RTL simulation environment using:
+This project demonstrates a scalable RTL simulation environment using:
 
-- 🦀 Rust for test logic and FFI control
-- 🧠 Verilator for RTL simulation
-- 📦 Safe abstractions around unsafe C bindings
-- 📂 Structured logs and waveform outputs per test
+- Rust for test logic, drivers, and VIPs
+- Verilator for RTL simulation
+- Safe abstractions around unsafe C bindings
+- Structured logs and waveform outputs per test under `target`
 
 ---
 
 ## ✅ Features
 
+- Fully independent **scheduler crate** for driving/sampling phases
 - Safe Rust wrapper for Verilator simulation (minimal `unsafe`)
-- Waveform `.vcd` dumping enabled (`--trace`)
-- Per-test output directory: `sim/<test_name>_<timestamp>/`
-- Log redirection to `sim.log`
-- Fully CLI-driven: `make all` and `make run TEST=<name>`
-- Supports multiple tests using standard Rust `#[test]`
+- Waveform `.vcd` dumping enabled via `WAVE=1`
+- Per-test output directory: `target/tb/sim_outputs/<test_name>_<timestamp>/`
+- Automatic log redirection to `sim.log`
+- CLI-driven test selection with Rust `#[test]`
+- Test outputs automatically cleaned via `cargo clean`
 
 ---
 
-## 📁 Directory Structure
-
+## 📂 Directory Structure
 .
 
-├── agent/rust_axi_mst/         # Rust AXI master test agent + FFI binding
+├── data_types/ # Custom Bits<N> types for flexible-width signals
 
-│   └── lib.rs                  # Main simulation interface
+├── rtl/simple_axi_slv/ # Verilog DUT (AXI slave)
 
-├── rtl/simple_axi_slv/         # Verilog DUT (AXI slave)
+├── scheduler/ # Scheduler crate: phases, context, components
 
-├── sim/                        # Simulation wrapper and tick logic
+├── sim/ # Simulation crate wrapping Verilator
 
-│   └── wrapper.cpp             # Clock/eval/VCD dumping logic
+│ └── cpp/
 
-├── test/                       # Rust tests
+│ └── wrapper.cpp
 
-│   └── test_axi_basic.rs
+├── tb/ # Testbench crate: Rust test logic
 
-├── build.rs                    # Optional build script (if needed)
+│ └── tests/
 
-├── Cargo.toml                  # Rust workspace
+│ └── test_axi_basic.rs
 
-├── Makefile                    # Verilator + test runner
+├── target/ # Cargo output, including sim outputs
 
-└── README.md                   # This file
+├── build.rs # Build script for Verilator integration
+
+├── Cargo.toml # Workspace manifest
+
+└── README.md
+
+---
 
 ## ▶️ How to Run
 
-### 1. Build DUT and simulator
+### 1. Build simulator
 
 ```bash
-make all
+cargo build -p sim
 ```
+
+- This runs sim/build.rs which:
+    - Compiles Verilator RTL + wrapper.cpp
+    - Places generated files under target/sim/obj_dir
+    - Produces static library libvltick.a linked by Rust
 
 ### 2. Run a test
-
 ```bash
-make run TEST=test_axi_basic
+cargo test -p tb --test test_axi_basic
 ```
 
-This will:
+### 3. Output
+- Test outputs are written per test under:
 
-* Run the Rust test
-* Redirect all output to `sim/test_axi_basic_<timestamp>/sim.log`
-* Dump waveform to `waveform.vcd` in the same folder
+target/tb/sim_outputs/<test_name>_<timestamp>/
 
-### 🧪 Output Example
+├── sim.log
 
-├── sim/test_axi_basic_20250718_2130/
+└── wave_<test_name>.vcd  # only if WAVE=1
 
-│   └── sim.log
+- Example
+target/tb/sim_outputs/test_axi_basic_2026-03-02_21-50-12-123/
 
-│   └── waveform.vcd
+├── sim.log
 
-### ⚙️ **Clock + Eval Logic**
+└── wave_test_axi_basic.vcd
 
-The actual clocking is handled in C++ via Verilator:
-
-```cpp
-void sim_tick(uint64_t time, uint64_t step) {
-    dut->clk = 0; dut->eval(); tfp->dump(time);
-    dut->clk = 1; dut->eval(); tfp->dump(time + step / 2);
-}
-```
-
-In Rust:
+## Scheduler API
+- Rust Scheduler manages simulation phases:
 
 ```rust
-let mut sim = Sim::new(true, &vcd_path, 10);
-for _ in 0..1000 {
-    sim.tick();
-}
+scheduler.on_phase(Phase::Drive, &mut ctx);
+backend.eval();
+scheduler.on_phase(Phase::Sample, &mut ctx);
+ctx.advance();
 ```
 
-### 💡 Safe Rust Abstraction
-
-All FFI to `sim_init`, `sim_tick`, and `sim_finish` is encapsulated safely inside a `Sim` struct. Log redirection is handled via a helper:
-
+## Safe Verilator Wrapper
 ```rust
-fn redirect_stdio(log_file: &File) {
-    unsafe {
-        libc::dup2(log_file.as_raw_fd(), libc::STDOUT_FILENO);
-        libc::dup2(log_file.as_raw_fd(), libc::STDERR_FILENO);
-    }
-}
+let mut sim = VerilatorSim::new(test_name);
+sim.log("Starting simulation");
+sim.eval();
 ```
 
-### 🧼 Cleanup
+- Encapsulates sim_init, sim_tick, sim_finish
+- Logs automatically to sim.log
+- Dumps waveforms to unique per-test folder if WAVE=1
 
-```make
-make clean
-```
+## Notes
+- Only one test should enable waveforms at a time to avoid SIGSEGV
+- Test outputs are isolated per test and timestamped for reproducibility
+- cargo clean removes all outputs under target, including simulation logs and waves
+- Multiple tests can run in parallel safely, with independent outputs
 
-Deletes:
-
-* Verilator `obj_dir/`
-* Cargo `target/`
-* `sim/` logs and waveform folders
-
-### 🧽 Format Code
-
+## Tips
+- Run only integration tests if unit tests and doc tests are not desired:
 ```bash
-cargo fmt
+cargo test --test <test_name>
 ```
+
+
+
+

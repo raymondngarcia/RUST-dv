@@ -9,7 +9,11 @@ pub struct Bits<const N: u8> {
 }
 
 impl<const N: u8> Bits<N> {
-    const MASK: u128 = if N == 128 { u128::MAX } else { (1u128 << N) - 1 };
+    const MASK: u128 = if N == 128 {
+        u128::MAX
+    } else {
+        (1u128 << N) - 1
+    };
 
     /// Create a new Bits<N> with value, automatically masked
     pub fn new(val: u128) -> Self {
