@@ -6,4 +6,9 @@ members = [
     "sim",
 ]
 
-resolver = "2"
+resolver = "3"
+
+[workspace.package]
+license = "MIT"
+edition = "2024"
+
