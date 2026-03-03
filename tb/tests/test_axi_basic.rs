@@ -5,11 +5,8 @@ use sim::VerilatorSim;
 
 #[test]
 fn test_axi_basic_1() -> Result<(), Box<dyn std::error::Error>> {
-    // Optionally set a TEST environment variable for logging or selection
-    std::env::set_var("TEST", "test_axi_basic");
-
     // -------- 1️⃣ Initialize the Verilator backend --------
-    let mut sim = VerilatorSim::new("test_axi_basic");
+    let mut sim = VerilatorSim::new("test_axi_basic_1");
 
     // -------- 2️⃣ Create scheduler and attach components --------
     let mut sched = Scheduler::new();
@@ -27,8 +24,6 @@ fn test_axi_basic_1() -> Result<(), Box<dyn std::error::Error>> {
 
 #[test]
 fn test_axi_basic_2() -> Result<(), Box<dyn std::error::Error>> {
-    std::env::set_var("TEST", "test_axi_basic_2");
-
     let mut sim = VerilatorSim::new("test_axi_basic_2");
     let mut sched = Scheduler::new();
 

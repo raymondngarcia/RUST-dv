@@ -1,0 +1,62 @@
+name: CI - Build & Test
+
+on:
+  push:
+    branches: [ dev/init, main ] 
+  pull_request:
+    branches: [ dev/init, main ]
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04  # Latest Ubuntu; macos-latest also works but slower for Verilator
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive  # If you ever add git submodules
+
+      - name: Install Verilator
+        uses: veryl-lang/setup-verilator@v1
+        # Optional: pin a version if you want reproducibility
+        # with:
+        #   verilator-version: '5.028'  # Or latest stable
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy  # Optional but recommended
+
+      - name: Cache Cargo dependencies & build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "."  # Workspace root
+
+      - name: Build Verilator model (sim crate)
+        run: cargo build -p sim --verbose
+
+      - name: Run all tests (tb crate)
+        run: cargo test -p tb --verbose
+
+      # Optional: Run specific test with waveform enabled (for smoke check)
+      - name: Run basic AXI test with waves (debug)
+        env:
+          WAVE: 1
+        run: cargo test -p tb --test test_axi_basic test_axi_basic_1 -- --nocapture
+
+      # Optional 
+      # - name: Check formatting
+      #   run: cargo fmt --check
+      #
+      # - name: Clippy lint
+      #   run: cargo clippy -- -D warnings
+      #
+      # - name: Upload VCD artifact (if WAVE=1 test ran)
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: waveform-vcd
+      #     path: target/tb/sim_outputs/**/*.vcd
+      #     if-no-files-found: ignore
