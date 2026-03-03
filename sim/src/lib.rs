@@ -1,8 +1,8 @@
+use chrono::Local;
 use scheduler::scheduler::SimBackend;
 use std::env;
 use std::ffi::CString;
 use std::fs;
-use chrono::Local;
 use std::path::PathBuf;
 
 #[repr(C)]
@@ -37,8 +37,7 @@ impl VerilatorSim {
             .map(PathBuf::from)
             .unwrap_or_else(|_| {
                 // Fallback for older Cargo versions
-                let manifest_dir =
-                    PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+                let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
                 manifest_dir
                     .parent()
                     .expect("Failed to determine workspace root")
@@ -70,9 +69,7 @@ impl VerilatorSim {
             .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
             .unwrap_or(false);
 
-        let dumpfile = CString::new(
-            vcd_path.to_string_lossy().to_string()
-        ).unwrap();
+        let dumpfile = CString::new(vcd_path.to_string_lossy().to_string()).unwrap();
 
         // ------------------------------------------------------------
         // 6️⃣ Initialize Verilator
